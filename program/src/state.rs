@@ -6,10 +6,23 @@ use thiserror::Error;
 #[derive(BorshSerialize, BorshDeserialize)]
 pub struct AccountState {
     pub is_initialized: bool,
-    pub rating: u8,
+    pub from_institution: String,
+    pub from_state_province: String,
+    pub from_country: String,
+    pub to_institution: String,
+    pub to_country: String,
+    pub date_started: String,
+    pub date_ended: String,
+    pub ending_salary: u64,
+    pub ending_currency: String,
+    pub new_salary: u64,
+    pub new_currency: String,
+    pub date_transferred: String,
+    pub skills_earned: Vec<String>,
     pub description: String,
-    pub title: String,
-    pub location: String, //new field
+    pub rating: u8,
+    pub behaviour: String,
+    pub created_at: String,
 }
 
 impl Sealed for AccountState {}
