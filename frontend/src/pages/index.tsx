@@ -7,22 +7,35 @@ import { fetchReviews } from "@/util/fetchReviews";
 import { useWallet } from "@solana/wallet-adapter-react";
 import ReviewForm from "@/components/Form";
 
-//Replace with your own Program_id
-const REVIEW_PROGRAM_ID = "8MCwW8qmRVHmABw9zPi4ky4JKYsKTzZPnnRgCitDvBjZ";
+// Replace with your own Program_id
+const REVIEW_PROGRAM_ID = "2VAnFzCVr6B72HAnPYGkfsyJfWSABJGXwT5hNR8CFKdz";
 
 export default function Home() {
   const [isMounted, setIsMounted] = useState(false);
-
   const connection = new web3.Connection(web3.clusterApiUrl("devnet"));
   const { publicKey, sendTransaction } = useWallet();
 
   const [txid, setTxid] = useState("");
   const [reviews, setReviews] = useState<Review[]>([]);
 
-  const [title, setTitle] = useState("");
-  const [rating, setRating] = useState(0);
+  // Extended state fields
+  const [fromInstitution, setFromInstitution] = useState("");
+  const [fromStateProvince, setFromStateProvince] = useState("");
+  const [fromCountry, setFromCountry] = useState("");
+  const [toInstitution, setToInstitution] = useState("");
+  const [toCountry, setToCountry] = useState("");
+  const [dateStarted, setDateStarted] = useState("");
+  const [dateEnded, setDateEnded] = useState("");
+  const [endingSalary, setEndingSalary] = useState(0);
+  const [endingCurrency, setEndingCurrency] = useState("");
+  const [newSalary, setNewSalary] = useState(0);
+  const [newCurrency, setNewCurrency] = useState("");
+  const [dateTransferred, setDateTransferred] = useState("");
+  const [skillsEarned, setSkillsEarned] = useState("");
   const [description, setDescription] = useState("");
-  const [location, setLocation] = useState("");
+  const [rating, setRating] = useState(0);
+  const [behaviour, setBehaviour] = useState("");
+  const [createdAt, setCreatedAt] = useState("");
 
   useEffect(() => {
     setIsMounted(true);
@@ -33,7 +46,27 @@ export default function Home() {
   }, []);
 
   const handleSubmit = () => {
-    const review = new Review(title, rating, description, location);
+    // Convert skillsEarned from comma-separated string to an array
+    const skillsArray = skillsEarned.split(",").map(s => s.trim()).filter(Boolean);
+    const review = new Review(
+      fromInstitution,
+      fromStateProvince,
+      fromCountry,
+      toInstitution,
+      toCountry,
+      dateStarted,
+      dateEnded,
+      endingSalary,
+      endingCurrency,
+      newSalary,
+      newCurrency,
+      dateTransferred,
+      skillsArray,
+      description,
+      rating,
+      behaviour,
+      createdAt
+    );
     handleTransactionSubmit(review);
   };
 
@@ -42,12 +75,11 @@ export default function Home() {
       alert("Please connect your wallet!");
       return;
     }
-
     const buffer = review.serialize();
     const transaction = new web3.Transaction();
 
     const [pda] = await web3.PublicKey.findProgramAddressSync(
-      [publicKey.toBuffer(), Buffer.from(review.title)],
+      [publicKey.toBuffer(), Buffer.from(review.fromInstitution)],
       new web3.PublicKey(REVIEW_PROGRAM_ID)
     );
 
@@ -76,45 +108,63 @@ export default function Home() {
     transaction.add(instruction);
 
     try {
-      let txid = await sendTransaction(transaction, connection);
-      setTxid(
-        `Transaction submitted: https://explorer.solana.com/tx/${txid}?cluster=devnet`
-      );
+      const tx = await sendTransaction(transaction, connection);
+      setTxid(`Transaction submitted: https://explorer.solana.com/tx/${tx}?cluster=devnet`);
     } catch (e) {
-      console.log(JSON.stringify(e));
+      console.error(e);
       alert(JSON.stringify(e));
     }
   };
 
   return (
-    <main
-      className={`flex min-h-screen flex-col items-center justify-between p-24 `}
-    >
+    <main className="flex min-h-screen flex-col items-center justify-between p-24">
       <div className="z-10 max-w-5xl w-full items-center justify-between font-mono text-sm lg:flex">
         <AppBar />
       </div>
-
-      <div className="after:absolute after:-z-20 after:h-[180px] after:w-[240px] after:translate-x-1/3 after:bg-gradient-conic after:from-sky-200 after:via-blue-200 after:blur-2xl after:content-[''] before:dark:bg-gradient-to-br before:dark:from-transparent before:dark:to-blue-700/10 after:dark:from-sky-900 after:dark:via-[#0141ff]/40 before:lg:h-[360px]">
+      <div className="my-8">
         <ReviewForm
-          title={title}
+          fromInstitution={fromInstitution}
+          fromStateProvince={fromStateProvince}
+          fromCountry={fromCountry}
+          toInstitution={toInstitution}
+          toCountry={toCountry}
+          dateStarted={dateStarted}
+          dateEnded={dateEnded}
+          endingSalary={endingSalary}
+          endingCurrency={endingCurrency}
+          newSalary={newSalary}
+          newCurrency={newCurrency}
+          dateTransferred={dateTransferred}
+          skillsEarned={skillsEarned}
           description={description}
-          location={location}
           rating={rating}
-          setTitle={setTitle}
+          behaviour={behaviour}
+          createdAt={createdAt}
+          setFromInstitution={setFromInstitution}
+          setFromStateProvince={setFromStateProvince}
+          setFromCountry={setFromCountry}
+          setToInstitution={setToInstitution}
+          setToCountry={setToCountry}
+          setDateStarted={setDateStarted}
+          setDateEnded={setDateEnded}
+          setEndingSalary={setEndingSalary}
+          setEndingCurrency={setEndingCurrency}
+          setNewSalary={setNewSalary}
+          setNewCurrency={setNewCurrency}
+          setDateTransferred={setDateTransferred}
+          setSkillsEarned={setSkillsEarned}
           setDescription={setDescription}
-          setLocation={setLocation}
           setRating={setRating}
+          setBehaviour={setBehaviour}
+          setCreatedAt={setCreatedAt}
           handleSubmit={handleSubmit}
         />
       </div>
-
       {txid && <div>{txid}</div>}
-
-      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:mb-0 lg:grid-cols-3 lg:text-left">
-        {reviews &&
-          reviews.map((review) => {
-            return <ReviewCard key={review.title} review={review} />;
-          })}
+      <div className="mb-32 grid text-center lg:max-w-5xl lg:w-full lg:grid-cols-3">
+        {reviews.map((review) => (
+          <ReviewCard key={review.fromInstitution} review={review} />
+        ))}
       </div>
     </main>
   );

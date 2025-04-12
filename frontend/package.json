@@ -16,12 +16,14 @@
         "@solana/wallet-adapter-react-ui": "^0.9.11",
         "@solana/wallet-adapter-wallets": "latest",
         "@solana/web3.js": "^1.50.1",
+        "bn.js": "^5.2.1",
         "framer-motion": "^7.6.1",
         "next": "13.5.4",
         "react": "^18",
         "react-dom": "^18"
     },
     "devDependencies": {
+        "@types/bn.js": "^5.1.6",
         "@types/node": "^20",
         "@types/react": "^18",
         "@types/react-dom": "^18",
